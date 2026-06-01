@@ -1,0 +1,74 @@
+class SegmentTree {
+
+    int[] tree;
+    int n;
+
+    SegmentTree(int[] sales) {
+        n = sales.length;
+        tree = new int[4 * n];
+        build(sales, 1, 0, n - 1);
+    }
+
+    // Build Segment Tree
+    void build(int[] sales, int node, int start, int end) {
+        if (start == end) {
+            tree[node] = sales[start];
+        } else {
+            int mid = (start + end) / 2;
+            build(sales, 2 * node, start, mid);
+            build(sales, 2 * node + 1, mid + 1, end);
+            tree[node] = tree[2 * node] + tree[2 * node + 1];
+        }
+    }
+
+    // Range Sum Query
+    int query(int node, int start, int end, int l, int r) {
+
+        if (r < start || end < l)
+            return 0;
+
+        if (l <= start && end <= r)
+            return tree[node];
+
+        int mid = (start + end) / 2;
+
+        return query(2 * node, start, mid, l, r) +
+               query(2 * node + 1, mid + 1, end, l, r);
+    }
+
+    // Update Sales Value
+    void update(int node, int start, int end, int idx, int value) {
+
+        if (start == end) {
+            tree[node] = value;
+        } else {
+
+            int mid = (start + end) / 2;
+
+            if (idx <= mid)
+                update(2 * node, start, mid, idx, value);
+            else
+                update(2 * node + 1, mid + 1, end, idx, value);
+
+            tree[node] = tree[2 * node] + tree[2 * node + 1];
+        }
+    }
+}
+
+public class Main {
+
+    public static void main(String[] args) {
+
+        int[] sales = {1000, 2000, 1500, 3000, 2500};
+
+        SegmentTree st = new SegmentTree(sales);
+
+        System.out.println("Sales from Day 1 to Day 3: "
+                + st.query(1, 0, sales.length - 1, 0, 2));
+
+        st.update(1, 0, sales.length - 1, 2, 2000);
+
+        System.out.println("Updated Sales from Day 1 to Day 3: "
+                + st.query(1, 0, sales.length - 1, 0, 2));
+    }
+}
